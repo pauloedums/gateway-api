@@ -1,0 +1,2 @@
+docker run -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=gateway -p 5432:5432 -d --name postgres-db postgres:9.6.18-alpine
+docker run -d -p 10520:8080 viniciusmartinez/quarkus-rhsso:1.0

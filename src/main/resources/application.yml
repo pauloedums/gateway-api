@@ -1,0 +1,31 @@
+quarkus:
+  swagger-ui:
+    theme: material
+    always-include: true
+
+  live-reload:
+    instrumentation: true
+
+  http:
+    root-path: /api/v1
+
+  resteasy-json:
+    default-json: true
+    
+  oidc:
+    auth-server-url: http://localhost:10520/auth/realms/Quarkus
+    client-id: customer-app
+    credentials:
+      secret: 5ffb3490-4d7b-42ed-8cac-e6774550bc92
+
+  datasource:
+    db-kind: postgresql
+    username: postgres
+    password: postgres
+    jdbc:
+      url: jdbc:postgresql://localhost:5432/gateway
+
+  hibernate-orm:
+    database:
+      generation: 
+        ~: drop-and-create
