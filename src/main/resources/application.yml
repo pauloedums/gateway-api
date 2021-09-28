@@ -8,9 +8,6 @@ quarkus:
 
   http:
     root-path: /api/v1
-
-  resteasy-json:
-    default-json: true
     
   oidc:
     auth-server-url: http://localhost:10520/auth/realms/Quarkus

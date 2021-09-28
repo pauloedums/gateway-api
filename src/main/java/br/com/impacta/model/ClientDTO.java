@@ -4,16 +4,24 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import io.smallrye.config.ConfigMapping;
+
 @Entity
+@ConfigMapping(prefix = "client")
 public class ClientDTO {
 
     @Id
+    @ConfigProperty(name = "id", defaultValue = "1")
     public Long id;
 
     @Column(name = "client_name", length = 100)
+    @ConfigProperty(name = "client_name", defaultValue = "Teste")
     private String nome;
 
     @Column(name = "client_birthdate", length = 10)
+    @ConfigProperty(name = "client_birthdate", defaultValue = "01/07/1970")
     private String dataDeNascimento;
 
     public Long getId() {
