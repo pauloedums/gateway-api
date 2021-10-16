@@ -7,7 +7,11 @@ quarkus:
     instrumentation: true
 
   http:
-    root-path: /api/v1
+    non-application-root-path: /api/v1
+  
+  smallrye-openapi:
+    path: /swagger
+    
     
   oidc:
     auth-server-url: http://localhost:10520/auth/realms/Quarkus
