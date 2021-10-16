@@ -20,7 +20,6 @@ import javax.ws.rs.core.Response.Status;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.enums.ParameterStyle;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -82,7 +81,7 @@ public class ClientResource {
         @Parameter(
             description = "Busca o cliente pelo nome",
             required = true,
-            example = "Teste",
+            example = "Cliente",
             schema = @Schema(implementation = String.class))
         @PathParam("name") String name){
         return clientRepository
@@ -94,7 +93,27 @@ public class ClientResource {
 
     @GET
     @Path("/{id}")
-    public Response getClientById(@PathParam("id") Long id){
+    @Operation(
+        operationId = "getClientById",
+        summary = "Busca de cliente pelo ID",
+        description = "Busca de cliente pelo ID")
+    @APIResponse(
+      responseCode = "200",
+      description = "Cliente encontrado",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = ClientDTO.class)))
+    @APIResponse(
+        responseCode = "404",
+        description = "Cliente não encontrado",
+        content = @Content(mediaType = "application/json"))
+    public Response getClientById(
+        @Parameter(
+            description = "Busca o cliente pelo ID",
+            required = true,
+            example = "1",
+            schema = @Schema(implementation = Long.class))
+        @PathParam("id") Long id){
         return clientRepository
                 .findByIdOptional(id)
                 .map(client -> Response.ok(client).build())
@@ -106,9 +125,31 @@ public class ClientResource {
     @Transactional
     @Path("/add")
     @RolesAllowed("admin")
-    public Response addClient(ClientDTO client){
+    @Operation(
+        operationId = "addClient",
+        summary = "Cadastra um novo cliente",
+        description = "Cadastra um novo cliente")
+    @APIResponse(
+      responseCode = "201",
+      description = "Cliente Cadastrado",
+      content = @Content(
+        mediaType = "application/json"))
+    @APIResponse(
+        responseCode = "400",
+        description = "Cadastro fora das especificações",
+        content = @Content(mediaType = "application/json"))
+    @APIResponse(
+        responseCode = "401",
+        description = "Sem autorização",
+        content = @Content(mediaType = "application/json"))
+    public Response addClient(
+        @Parameter(
+            description = "Cadastra um novo Cliente",
+            required = true,
+            schema = @Schema(implementation = ClientDTO.class))
+        ClientDTO client){
         if(client.getDataDeNascimento().length() > 10 || client.getNome().length() > 100){
-            return Response.status(Status.PRECONDITION_FAILED).build();    
+            return Response.status(Status.BAD_REQUEST).build();    
         }
 
         clientRepository.persist(client);
@@ -116,7 +157,7 @@ public class ClientResource {
             return Response.created(URI.create("/clients/" + client.getId())).build();
         }
 
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.BAD_REQUEST).build();
     }
 
 
@@ -124,9 +165,32 @@ public class ClientResource {
     @Transactional
     @Path("/delete/{id}")
     @RolesAllowed("admin")
-    public Response deleteClient(@PathParam("id") Long id){
+    @Operation(
+        operationId = "deleteClient",
+        summary = "Deleta um cliente pelo ID",
+        description = "Deleta um cliente")
+    @APIResponse(
+        responseCode = "200",
+        description = "Cliente deletado",
+        content = @Content(
+            mediaType = "application/json"))
+    @APIResponse(
+        responseCode = "400",
+        description = "Request fora das especificações",
+        content = @Content(mediaType = "application/json"))
+    @APIResponse(
+        responseCode = "401",
+        description = "Sem autorização",
+        content = @Content(mediaType = "application/json"))
+    public Response deleteClient(
+        @Parameter(
+            description = "Deleta o cliente pelo ID",
+            required = true,
+            example = "1",
+            schema = @Schema(implementation = Long.class))
+        @PathParam("id") Long id){
         boolean deleted = clientRepository.deleteById(id);
-        return deleted ? Response.noContent().build() : Response.status(Status.BAD_REQUEST).build();
+        return deleted ? Response.ok().build() : Response.status(Status.BAD_REQUEST).build();
     }
 
 
@@ -134,7 +198,36 @@ public class ClientResource {
     @Path("/update/{id}")
     @Transactional
     @RolesAllowed("admin")
-    public Response updateClient(@PathParam("id") Long id, ClientDTO client_updates){
+    @Operation(
+        operationId = "updateClient",
+        summary = "Atualiza um cliente pelo ID",
+        description = "Atualiza um cliente")
+    @APIResponse(
+        responseCode = "200",
+        description = "Cliente atualizado",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ClientDTO.class)))    
+    @APIResponse(
+        responseCode = "404",
+        description = "Cliente não encontrado",
+        content = @Content(mediaType = "application/json"))
+    @APIResponse(
+        responseCode = "401",
+        description = "Sem autorização",
+        content = @Content(mediaType = "application/json"))  
+    public Response updateClient(
+        @Parameter(
+            description = "Atualiza o cliente pelo ID",
+            required = true,
+            example = "1",
+            schema = @Schema(implementation = Long.class))
+        @PathParam("id") Long id, 
+        @Parameter(
+            description = "Atualiza um Cliente",
+            required = true,
+            schema = @Schema(implementation = ClientDTO.class))
+        ClientDTO client_updates){
 
         if (clientResources.get(id) == null) {
             return Response.status(Status.NOT_FOUND).build();
